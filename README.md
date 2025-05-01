@@ -20,7 +20,7 @@ A command-line tool that detects what technologies, frameworks, and platforms a 
 
 1. Clone this repository:
 ```
-git clone https://github.com/YOUR-USERNAME/website-tech-detector.git
+git clone https://github.com/Nabeel-javaid/website-tech-detector
 cd website-tech-detector
 ```
 
