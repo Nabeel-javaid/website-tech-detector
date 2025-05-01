@@ -1,6 +1,6 @@
 # Website Technology Detector
 
-A command-line tool that detects what technologies, frameworks, and platforms a website is built with.
+A tool that detects what technologies, frameworks, and platforms a website is built with. Available as both a command-line tool and a REST API.
 
 ## Features
 
@@ -14,13 +14,15 @@ A command-line tool that detects what technologies, frameworks, and platforms a 
   - Web Servers (Nginx, Apache)
 - Provides confidence levels for each detection
 - Works cross-platform with colorized output
-- No complex dependencies required
+- Available as a command-line tool and REST API
 
 ## Installation
 
+### Command Line Tool
+
 1. Clone this repository:
 ```
-git clone https://github.com/Nabeel-javaid/website-tech-detector
+git clone https://github.com/your-username/website-tech-detector.git
 cd website-tech-detector
 ```
 
@@ -29,9 +31,29 @@ cd website-tech-detector
 pip install requests colorama
 ```
 
+### API Server
+
+1. Clone this repository:
+```
+git clone https://github.com/your-username/website-tech-detector.git
+cd website-tech-detector
+```
+
+2. Install required packages:
+```
+pip install -r requirements.txt
+```
+
+3. Run the API server:
+```
+python api.py
+```
+
+The API will be available at http://localhost:8000 with Swagger documentation at http://localhost:8000/docs
+
 ## Usage
 
-### Basic Usage
+### Command Line Tool
 ```
 python website_tech_detector.py --url example.com
 ```
@@ -40,6 +62,49 @@ python website_tech_detector.py --url example.com
 ```
 python website_tech_detector.py
 ```
+
+### API Requests
+
+The API is deployed and available at:
+```
+https://website-tech-detector-api.onrender.com
+```
+
+#### Endpoint
+```
+POST /detect
+```
+
+#### Request Body
+```json
+{
+  "url": "example.com"
+}
+```
+
+#### Example cURL Command
+```
+curl -X POST "https://website-tech-detector-api.onrender.com/detect" -H "Content-Type: application/json" -d '{"url":"wordpress.org"}'
+```
+
+## Testing with Postman
+
+1. Open Postman
+2. Create a new POST request to `https://website-tech-detector-api.onrender.com/detect`
+3. Set the request body to raw JSON:
+   ```json
+   {
+     "url": "wordpress.org"
+   }
+   ```
+4. Send the request to receive the technology detection results
+
+## Example Websites to Test
+
+- WordPress: `wordpress.org`
+- E-commerce: `shopify.com`
+- Framework-based: `reactjs.org`
+- GitHub: `github.com`
 
 ## Example Output
 
@@ -77,34 +142,6 @@ DETECTED TECHNOLOGIES:
 }
 ```
 
-For GitHub.com:
-```
-[+] CLASSIFICATION: Multiple Frameworks (primarily Angular) (Custom Development)
-[+] CONFIDENCE: Medium
-==================================================
-DETECTED TECHNOLOGIES:
-{
-    "React": {
-        "categories": [
-            "JavaScript Framework"
-        ],
-        "confidence": "High"
-    },
-    "Angular": {
-        "categories": [
-            "JavaScript Framework"
-        ],
-        "confidence": "High"
-    },
-    "github.com": {
-        "categories": [
-            "Web Server"
-        ],
-        "confidence": "High"
-    }
-}
-```
-
 ## How It Works
 
 The tool works by:
@@ -113,6 +150,18 @@ The tool works by:
 3. Examining HTTP headers for server information
 4. Weighing and scoring the detected technologies to determine the most likely platform
 5. Presenting the findings with confidence levels
+
+## Deployment
+
+The API is deployed on Render.com. To deploy your own instance:
+
+1. Fork this repository
+2. Create a new web service on Render.com
+3. Connect your GitHub repository
+4. Configure with:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn api:app --host 0.0.0.0 --port $PORT`
+   - Select Python environment
 
 ## Extending
 
