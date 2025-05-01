@@ -9,12 +9,24 @@ import time
 import sys
 import argparse
 import requests
-from colorama import init, Fore
 from urllib.parse import urlparse
 import re
 
-# Initialize colorama for cross-platform colored output
-init()
+# Only initialize colorama when running as script
+try:
+    from colorama import init, Fore
+    has_colorama = True
+    # Initialize colorama for cross-platform colored output
+    init()
+except ImportError:
+    has_colorama = False
+    # Create dummy Fore class for API usage
+    class Fore:
+        RED = ""
+        GREEN = ""
+        CYAN = ""
+        MAGENTA = ""
+        YELLOW = ""
 
 class TechDetector:
     def __init__(self):
@@ -243,12 +255,16 @@ class TechDetector:
             return detected
             
         except requests.exceptions.RequestException as e:
-            print(Fore.RED + f"[+] Error: Unable to connect to {url}")
-            print(Fore.RED + f"[+] {str(e)}")
-            return {}
+            # Instead of printing to console, return error in response for API
+            error_msg = f"Error: Unable to connect to {url}. Details: {str(e)}"
+            if has_colorama:
+                print(Fore.RED + error_msg)
+            return {"error": error_msg, "classification": {"platform_type": "Unknown", "platform_name": "Unknown", "confidence": "Low"}}
         except Exception as e:
-            print(Fore.RED + f"[+] Error: {str(e)}")
-            return {}
+            error_msg = f"Error: {str(e)}"
+            if has_colorama:
+                print(Fore.RED + error_msg)
+            return {"error": error_msg, "classification": {"platform_type": "Unknown", "platform_name": "Unknown", "confidence": "Low"}}
     
     def determine_platform(self, detected_tech, tech_scores):
         """Determine if the site is WordPress, another tool, or custom code"""
@@ -387,9 +403,15 @@ def main():
     if args.url:
         url = args.url
     else:
-        url = input(Fore.YELLOW + "Enter URL to analyze: ")
+        if has_colorama:
+            url = input(Fore.YELLOW + "Enter URL to analyze: ")
+        else:
+            url = input("Enter URL to analyze: ")
         
-    print(Fore.CYAN + f"[+] Detecting technologies from {url}\n")
+    if has_colorama:
+        print(Fore.CYAN + f"[+] Detecting technologies from {url}\n")
+    else:
+        print(f"[+] Detecting technologies from {url}\n")
     
     start_time = time.time()
     
@@ -399,9 +421,14 @@ def main():
         # Display classification first
         if "classification" in results:
             classification = results["classification"]
-            print(Fore.GREEN + f"[+] CLASSIFICATION: {classification['platform_name']} ({classification['platform_type']})")
-            print(Fore.GREEN + f"[+] CONFIDENCE: {classification['confidence']}")
-            print(Fore.GREEN + "=" * 50)
+            if has_colorama:
+                print(Fore.GREEN + f"[+] CLASSIFICATION: {classification['platform_name']} ({classification['platform_type']})")
+                print(Fore.GREEN + f"[+] CONFIDENCE: {classification['confidence']}")
+                print(Fore.GREEN + "=" * 50)
+            else:
+                print(f"[+] CLASSIFICATION: {classification['platform_name']} ({classification['platform_type']})")
+                print(f"[+] CONFIDENCE: {classification['confidence']}")
+                print("=" * 50)
             
             # Remove classification from results for display
             results_copy = results.copy()
@@ -412,15 +439,28 @@ def main():
                 if isinstance(results_copy[tech], dict) and "match_count" in results_copy[tech]:
                     del results_copy[tech]["match_count"]
             
-            print(Fore.MAGENTA + "DETECTED TECHNOLOGIES:")
-            print(Fore.MAGENTA + json.dumps(results_copy, indent=4))
+            if has_colorama:
+                print(Fore.MAGENTA + "DETECTED TECHNOLOGIES:")
+                print(Fore.MAGENTA + json.dumps(results_copy, indent=4))
+            else:
+                print("DETECTED TECHNOLOGIES:")
+                print(json.dumps(results_copy, indent=4))
         else:
-            print(Fore.MAGENTA + json.dumps(results, indent=4))
+            if has_colorama:
+                print(Fore.MAGENTA + json.dumps(results, indent=4))
+            else:
+                print(json.dumps(results, indent=4))
     else:
-        print(Fore.RED + "[+] No technologies detected or an error occurred")
+        if has_colorama:
+            print(Fore.RED + "[+] No technologies detected or an error occurred")
+        else:
+            print("[+] No technologies detected or an error occurred")
     
     end_time = time.time()
-    print(Fore.CYAN + f"\n[+] Total Execution Time: {end_time - start_time:.2f} seconds\n")
+    if has_colorama:
+        print(Fore.CYAN + f"\n[+] Total Execution Time: {end_time - start_time:.2f} seconds\n")
+    else:
+        print(f"\n[+] Total Execution Time: {end_time - start_time:.2f} seconds\n")
 
 if __name__ == '__main__':
     main() 
